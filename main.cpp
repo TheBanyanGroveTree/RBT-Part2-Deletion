@@ -22,12 +22,13 @@ void stringUpper(string& input);
 void leftRotate(Node* x, Node* NIL, Node*& root);
 void rightRotate(Node* x, Node* NIL, Node*& root);
 void insert(int value, Node* NIL, Node*& root);
-void treeCorrections(Node* n, Node* NIL, Node*& root);
+void insertionTreeCorrections(Node* n, Node* NIL, Node*& root);
+// void deletionTreeCorrections();
 
 void add(Node* NIL, Node*& root);
 void read(Node* NIL, Node*& root);
-bool search(Node* NIL, Node* root, int value);
-// delete() T^T
+bool search(int value, Node* NIL, Node* root);
+// delete(int value, Node* NIL, Node*& root);
 void print(int depth, Node* NIL, Node* root);
 
 
@@ -66,7 +67,7 @@ int main() {
       cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
       // Output search results
-      bool searchResult = search(NIL, root, numSearch);
+      bool searchResult = search(numSearch, NIL, root);
       if (searchResult) {
 	cout << "YAY, I found it!" << endl;
       } else if (!searchResult) {
@@ -74,6 +75,13 @@ int main() {
       }
       
     } else if (userCommand == "DELETE") {
+      // Prompt user for number to delete
+      int numDelete = 0;
+      cout << "Enter the number to delete: " << endl;
+      cin >> numDelete;
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+      // delete();
 
     } else if (userCommand == "PRINT") {
       print(0, NIL, root);
@@ -196,12 +204,12 @@ void insert(int value, Node* NIL, Node*& root) {
     return;
   }
 
-  treeCorrections(newNode, NIL, root);
+  insertionTreeCorrections(newNode, NIL, root);
 }
 
 
-// Fix RBT violations
-void treeCorrections(Node* n, Node* NIL, Node*& root) {
+// Fix RBT insertion violations
+void insertionTreeCorrections(Node* n, Node* NIL, Node*& root) {
   // Continue while parent is RED
   while ((n != root) && (n->getParent() != nullptr) &&
 	 (n->getParent()->getIsRed())) {
@@ -254,6 +262,29 @@ void treeCorrections(Node* n, Node* NIL, Node*& root) {
 }
 
 
+// Fix RBT deletion violations
+/*
+void deletionTreeCorrections() {
+// CASE 1: current Node N = new root
+
+
+// CASE 2: P, S & S children = black
+
+
+// CASE 3: S = red
+
+
+// CASE 4: S & S children = black; P = red
+
+
+// CASE 5: P color doesn't matter
+
+
+// CASE 6: P color doesn't matter
+}
+*/
+
+
 // Insert by manually inputting numbers
 void add(Node* NIL, Node*& root) {
   // Prompt user for manual input to fill RBT
@@ -286,7 +317,7 @@ void read(Node* NIL, Node*& root) {
 
 
 // Search for a particular value in RBT
-bool search(Node* NIL, Node* root, int value) {
+bool search(int value, Node* NIL, Node* root) {
   // Base Case 1: root is NIL = NOT found
   if (root == NIL) {
     return false;
@@ -300,12 +331,16 @@ bool search(Node* NIL, Node* root, int value) {
   // Recursive call
   // Traverse left if value smaller than root's value
   if (value < root->getValue()) {
-    return search(NIL, root->getLeft(), value);
+    return search(value, NIL, root->getLeft());
   }
 
   // Traverse right if value greater than root's value
-  return search(NIL, root->getRight(), value); // general return statement
+  return search(value, NIL, root->getRight()); // general return statement
 }
+
+
+// Delete given value from RBT
+// delete()
 
 
 // Traverse RBT recursively to print sideways
