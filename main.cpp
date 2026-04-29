@@ -1,13 +1,15 @@
 /**
    Description: RBT
    Author: Aahana Sapra
-   Date: 04/26/2026
+   Date: 04/29/2026
  */
 
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <limits>
+#include <ios>
 #include "Node.h"
 
 
@@ -24,6 +26,8 @@ void treeCorrections(Node* n, Node* NIL, Node*& root);
 
 void add(Node* NIL, Node*& root);
 void read(Node* NIL, Node*& root);
+bool search(Node* NIL, Node* root, int value);
+// delete() T^T
 void print(int depth, Node* NIL, Node* root);
 
 
@@ -42,7 +46,7 @@ int main() {
   bool newInput = true;
   while (newInput) {
     // Read in user input
-    cout << "Enter a command (ADD, READ, PRINT, QUIT): ";
+    cout << "Enter a command (ADD, READ, SEARCH, DELETE, PRINT, or QUIT): ";
     getline(cin, userCommand);
 
     stringUpper(userCommand); // Convert input to uppercase for comparison
@@ -50,15 +54,36 @@ int main() {
     // Validate input and call appropriate method or exit program
     if (userCommand == "ADD") {
       add(NIL, root);
+      
     } else if (userCommand == "READ") {
       read(NIL, root);
+      
+    } else if (userCommand == "SEARCH") {
+      // Prompt user for number to search for
+      int numSearch = 0;
+      cout << "Enter the number to search for: " << endl;
+      cin >> numSearch;
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+      // Output search results
+      bool searchResult = search(NIL, root, numSearch);
+      if (searchResult) {
+	cout << "YAY, I found it!" << endl;
+      } else if (!searchResult) {
+	cout << "Hmmm... No encontre." << endl;
+      }
+      
+    } else if (userCommand == "DELETE") {
+
     } else if (userCommand == "PRINT") {
       print(0, NIL, root);
+      
     } else if (userCommand == "QUIT") {
       newInput = false; // Change input status
       
     } else { // Invalid input
-      cout << "Please input ADD, READ, PRINT, or QUIT." << endl;
+      cout << "Please input ADD, READ, SEARCH, DELETE, PRINT, or QUIT."
+	   << endl;
     }
   }
   
@@ -257,6 +282,29 @@ void read(Node* NIL, Node*& root) {
   }
   
   file.close();
+}
+
+
+// Search for a particular value in RBT
+bool search(Node* NIL, Node* root, int value) {
+  // Base Case 1: root is NIL = NOT found
+  if (root == NIL) {
+    return false;
+  }
+  
+  // Base Case 2: target value and current value match
+  if (root->getValue() == value) {
+    return true;
+  }
+
+  // Recursive call
+  // Traverse left if value smaller than root's value
+  if (value < root->getValue()) {
+    return search(NIL, root->getLeft(), value);
+  }
+
+  // Traverse right if value greater than root's value
+  return search(NIL, root->getRight(), value); // general return statement
 }
 
 
