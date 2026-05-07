@@ -1,7 +1,7 @@
 /**
    Description: RBT
    Author: Aahana Sapra
-   Date: 04/29/2026
+   Date: 05/07/2026
  */
 
 #include <iostream>
@@ -23,12 +23,12 @@ void leftRotate(Node* x, Node* NIL, Node*& root);
 void rightRotate(Node* x, Node* NIL, Node*& root);
 void insert(int value, Node* NIL, Node*& root);
 void insertionTreeCorrections(Node* n, Node* NIL, Node*& root);
+void deleteNode(int value, Node* NIL, Node* root);
 // void deletionTreeCorrections();
 
 void add(Node* NIL, Node*& root);
 void read(Node* NIL, Node*& root);
 bool search(int value, Node* NIL, Node* root);
-// delete(int value, Node* NIL, Node*& root);
 void print(int depth, Node* NIL, Node* root);
 
 
@@ -262,6 +262,53 @@ void insertionTreeCorrections(Node* n, Node* NIL, Node*& root) {
 }
 
 
+// Delete given value from RBT
+void deleteNode(int value, Node* NIL, Node* root) {
+  Node* target, replacement, removed;
+
+  // Iteratively find target Node
+  while (root != NIL) {
+    if (root->getValue() == value) {
+      target = root;
+    }
+    // Traverse left subtree if value less than current
+    else if (value < root->getValue()) {
+      root = root->getLeft();
+    }
+    // Traverse right subtree if value greater than current
+    else {
+      root = root->getRight();
+    }
+  }
+
+  if (target == NIL) {
+    return;
+  }
+
+  removed = replacement;
+  root removedOriginalColor = removed->isRed(); // Store original color
+
+  // Left child is NIL
+  if (target->getLeft() == NIL) {
+    replacement = target->getRight();
+    // SWAP
+  }
+  // Right child is NIL
+  else if (target->getRight() == NIL) {
+    replacement = target->getLeft();
+    // SWAP
+  }
+  // BOTH children are NIL
+  else {
+    // Find min of right subtree
+  }
+
+  delete target; // Delete dynamically allocated memory
+
+  // Call correction function is OG color is black
+}
+
+
 // Fix RBT deletion violations
 /*
 void deletionTreeCorrections() {
@@ -337,10 +384,6 @@ bool search(int value, Node* NIL, Node* root) {
   // Traverse right if value greater than root's value
   return search(value, NIL, root->getRight()); // general return statement
 }
-
-
-// Delete given value from RBT
-// delete()
 
 
 // Traverse RBT recursively to print sideways
