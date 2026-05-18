@@ -284,50 +284,81 @@ void transplant(Node* rem, Node* rep, Node* NIL, Node*& root) {
 
 // Delete given value from RBT
 void deleteNode(int value, Node* NIL, Node* root) {
-  Node* target;
-  Node* replacement;
-  Node* removed;
-
   // Iteratively find target Node
+  Node* target;
   while (root != NIL) {
-    if (root->getValue() == value) {
+    if (value == root->getValue()) {
       target = root;
     }
     // Traverse left subtree if value less than current
     else if (value < root->getValue()) {
-      root = root->getLeft();
+      target = root->getLeft();
     }
     // Traverse right subtree if value greater than current
     else {
-      root = root->getRight();
+      target = root->getRight();
     }
   }
 
-  if (target == NIL) {
+  if (target == NIL) { // Target NOT found
     return;
   }
 
-  removed = replacement;
-  bool removedOriginalColor = removed->getIsRed(); // Store original color
+  Node* replacement; // Replacement Node
+  bool removedOriginalColor = target->getIsRed(); // Store original color
 
-  // Left child is NIL
+  // Case 1: Left child is NIL
   if (target->getLeft() == NIL) {
     replacement = target->getRight();
-    // SWAP
+    transplant(target, replacement, NIL, root);
   }
-  // Right child is NIL
+  // Case 2: Right child is NIL
   else if (target->getRight() == NIL) {
     replacement = target->getLeft();
-    // SWAP
+    transplant(target, replacement, NIL, root);
   }
-  // BOTH children are NIL
+  // Case 3: BOTH children are NIL
   else {
     // Find min of right subtree
+    Node* successor = target->getRight();
+    while (successor->getLeft() != NIL) {
+      successor = successor->getLeft();
+    }
+
+    replacement = successor->getRight();
+    removedOriginalColor = successor->getIsRed(); // Store color of Node actually removed
+
+    // Case A: Immediate right child of target
+    if (successor->getParent() == target) {
+      replacement->setParent(successor); // Update replacement parent
+    }
+    // Case B: Deeper in tree
+    else {
+      // Replace successor with its right child
+      transplant(successor, successor->getRight(), NIL, root);
+
+      // Attach target's right subtree to successor
+      successor->setRight(target->getRight());
+      successor->getRight()->setParent(successor);
+    }
+
+    // Remove target node from tree
+    transplant(target, successor, NIL, root);
+
+    // Attach target's left subtree to successor
+    successor->setLeft(target->getLeft());
+    successor->getLeft()->setParent(successor);
+
+    // Inherit color of removed Node
+    successor->setIsRed(removedOriginalColor);
   }
 
   delete target; // Delete dynamically allocated memory
 
   // Call correction function is OG color is black
+  if (!removedOriginalColor) {
+    deletionTreeCorrections(replacement, NIL, root);
+  }
 }
 
 
