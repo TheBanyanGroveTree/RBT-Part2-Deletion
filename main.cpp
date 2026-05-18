@@ -23,6 +23,7 @@ void leftRotate(Node* x, Node* NIL, Node*& root);
 void rightRotate(Node* x, Node* NIL, Node*& root);
 void insert(int value, Node* NIL, Node*& root);
 void insertionTreeCorrections(Node* n, Node* NIL, Node*& root);
+void transplant(Node* rem, Node* rep, Node* NIL, Node*& root);
 void deleteNode(int value, Node* NIL, Node* root);
 // void deletionTreeCorrections();
 
@@ -262,9 +263,30 @@ void insertionTreeCorrections(Node* n, Node* NIL, Node*& root) {
 }
 
 
+// Replace subtree at Node rem with subtree at Node rep
+void transplant(Node* rem, Node* rep, Node* NIL, Node*& root) {
+  // Node to remove = root
+  if (rem->getParent() == NIL) {
+    root = rep;
+  }
+  // Node to remove = left child
+  else if (rem == rem->getParent()->getLeft()) {
+    rem->getParent()->setLeft(rep);
+  }
+  // Node to remove = right child
+  else {
+    rem->getParent()->setRight(rep);
+  }
+  
+  rep->setParent(rem->getParent()); // Update parent
+}
+
+
 // Delete given value from RBT
 void deleteNode(int value, Node* NIL, Node* root) {
-  Node* target, replacement, removed;
+  Node* target;
+  Node* replacement;
+  Node* removed;
 
   // Iteratively find target Node
   while (root != NIL) {
@@ -286,7 +308,7 @@ void deleteNode(int value, Node* NIL, Node* root) {
   }
 
   removed = replacement;
-  root removedOriginalColor = removed->isRed(); // Store original color
+  bool removedOriginalColor = removed->getIsRed(); // Store original color
 
   // Left child is NIL
   if (target->getLeft() == NIL) {
