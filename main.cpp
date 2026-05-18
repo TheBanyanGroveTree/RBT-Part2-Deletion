@@ -1,7 +1,7 @@
 /**
    Description: RBT
    Author: Aahana Sapra
-   Date: 05/07/2026
+   Date: 05/15/2026
  */
 
 #include <iostream>
@@ -25,7 +25,7 @@ void insert(int value, Node* NIL, Node*& root);
 void insertionTreeCorrections(Node* n, Node* NIL, Node*& root);
 void transplant(Node* rem, Node* rep, Node* NIL, Node*& root);
 void deleteNode(int value, Node* NIL, Node* root);
-// void deletionTreeCorrections();
+void deletionTreeCorrections(Node* n, Node* NIL, Node*& root);
 
 void add(Node* NIL, Node*& root);
 void read(Node* NIL, Node*& root);
@@ -307,17 +307,17 @@ void deleteNode(int value, Node* NIL, Node* root) {
   Node* replacement; // Replacement Node
   bool removedOriginalColor = target->getIsRed(); // Store original color
 
-  // Case 1: Left child is NIL
+  // CASE 1: Left child is NIL
   if (target->getLeft() == NIL) {
     replacement = target->getRight();
     transplant(target, replacement, NIL, root);
   }
-  // Case 2: Right child is NIL
+  // CASE 2: Right child is NIL
   else if (target->getRight() == NIL) {
     replacement = target->getLeft();
     transplant(target, replacement, NIL, root);
   }
-  // Case 3: BOTH children are NIL
+  // CASE 3: BOTH children are NIL
   else {
     // Find min of right subtree
     Node* successor = target->getRight();
@@ -328,11 +328,11 @@ void deleteNode(int value, Node* NIL, Node* root) {
     replacement = successor->getRight();
     removedOriginalColor = successor->getIsRed(); // Store color of Node actually removed
 
-    // Case A: Immediate right child of target
+    // CASE A: Immediate right child of target
     if (successor->getParent() == target) {
       replacement->setParent(successor); // Update replacement parent
     }
-    // Case B: Deeper in tree
+    // CASE B: Deeper in tree
     else {
       // Replace successor with its right child
       transplant(successor, successor->getRight(), NIL, root);
@@ -362,27 +362,98 @@ void deleteNode(int value, Node* NIL, Node* root) {
 }
 
 
-// Fix RBT deletion violations
-/*
-void deletionTreeCorrections() {
-// CASE 1: current Node N = new root
-
-
-// CASE 2: P, S & S children = black
-
-
+// CASE 1: current Node N = new root (cleaned up in last line)
+// CASE 2: P, S & S children = black (similar to 4)
 // CASE 3: S = red
+// CASE 4: S & S children = black; P = red (similar to 2)
+// CASE 5: P color doesn't matter (different color sibling children)
+// CASE 6: P color doesn't matter (")
 
 
-// CASE 4: S & S children = black; P = red
+// Fix RBT deletion violations
+void deletionTreeCorrections(Node* n, Node* NIL, Node*& root) {
+  // Continue until root or red Node
+  while (n != root && !n->getIsRed()) {
+    // n = LEFT child
+    if (n == n->getParent()->getLeft()) {
+      Node* s = n->getSibling();
 
+      // CASE 1: S = red
+      if (s->getIsRed()) {
+	// Recolor
+	s->setIsRed(false);
+	n->getParent()->setIsRed(true);
+	// Rotate to make S black -> CASE 2/3/4
+	leftRotate(n->getParent(), NIL, root);
+	s = n->getSibling(); // Update sibling
+      }
 
-// CASE 5: P color doesn't matter
+      // CASE 2: BOTH S children = black
+      if (!s->getLeft()->getIsRed() && !s->getRight()->getIsRed()) {
+	// Move blackness up tree
+	s->setIsRed(true);
+	n = n->getParent();
+      }
+      else {
+	// CASE 3: S right child = black
+	if (!s->getRight()->getIsRed()) {
+	  // Recolor
+	  s->getLeft()->setIsRed(false);
+	  s->setIsRed(true);
+	  // Rotate -> CASE 4
+	  rightRotate(s, NIL, root);
+	  s = n->getSibling(); // Update sibling
+	}
 
+	// CASE 4: S right child = red
+	// Recolor
+	s->setIsRed(n->getParent()->getIsRed());
+	n->getParent()->setIsRed(false);
+	s->getRight()->setIsRed(false);
+	// Rotate to balance black height
+	leftRotate(n->getParent(), NIL, root);
+	n = root; // Remove extra blackness
+      }
+    }
 
-// CASE 6: P color doesn't matter
+    // MIRROR: n = RIGHT child
+    else {
+      Node* s = n->getSibling();  // Sibling
+
+      // MIRROR: CASE 1
+      if (s->getIsRed()) {
+	n->setIsRed(false);
+	n->getParent()->setIsRed(true);
+	rightRotate(n->getParent(), NIL, root);
+	s = n->getSibling();
+      }
+
+      // MIRROR: CASE 2
+      if (!s->getLeft()->getIsRed() && !s->getLeft()->getIsRed()) {
+	s->setIsRed(true);
+	n = n->getParent();
+      }
+      else {
+	// MIRROR: CASE 3
+	if (!s->getLeft()->getIsRed()) {
+	  s->getRight()->setIsRed(false);
+	  s->setIsRed(true);
+	  leftRotate(s, NIL, root);
+	  s = n->getSibling();
+	}
+
+	// MIRROR: CASE 4
+	s->setIsRed(n->getParent()->getIsRed());
+	n->getParent()->setIsRed(false);
+	s->getLeft()->setIsRed(false);
+	leftRotate(n->getParent(), NIL, root);
+	n = root; 
+      }
+    }
+  }
+  
+  n->setIsRed(false); // Absorb extra blackness
 }
-*/
 
 
 // Insert by manually inputting numbers
