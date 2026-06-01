@@ -1,7 +1,7 @@
 /**
    Description: RBT
    Author: Aahana Sapra
-   Date: 05/15/2026
+   Date: 05/29/2026
  */
 
 #include <iostream>
@@ -24,7 +24,7 @@ void rightRotate(Node* x, Node* NIL, Node*& root);
 void insert(int value, Node* NIL, Node*& root);
 void insertionTreeCorrections(Node* n, Node* NIL, Node*& root);
 void transplant(Node* rem, Node* rep, Node* NIL, Node*& root);
-void deleteNode(int value, Node* NIL, Node* root);
+void deleteNode(int value, Node* NIL, Node*& root);
 void deletionTreeCorrections(Node* n, Node* NIL, Node*& root);
 
 void add(Node* NIL, Node*& root);
@@ -82,7 +82,7 @@ int main() {
       cin >> numDelete;
       cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-      // delete();
+      deleteNode(numDelete, NIL, root);
 
     } else if (userCommand == "PRINT") {
       print(0, NIL, root);
@@ -266,7 +266,7 @@ void insertionTreeCorrections(Node* n, Node* NIL, Node*& root) {
 // Replace subtree at Node rem with subtree at Node rep
 void transplant(Node* rem, Node* rep, Node* NIL, Node*& root) {
   // Node to remove = root
-  if (rem->getParent() == NIL) {
+  if (rem->getParent() == nullptr) {
     root = rep;
   }
   // Node to remove = left child
@@ -283,20 +283,22 @@ void transplant(Node* rem, Node* rep, Node* NIL, Node*& root) {
 
 
 // Delete given value from RBT
-void deleteNode(int value, Node* NIL, Node* root) {
+void deleteNode(int value, Node* NIL, Node*& root) {
   // Iteratively find target Node
-  Node* target;
-  while (root != NIL) {
-    if (value == root->getValue()) {
-      target = root;
+  Node* target = NIL;
+  Node* curr = root;
+  while (curr != NIL) {
+    if (value == curr->getValue()) {
+      target = curr;
+      break;
     }
     // Traverse left subtree if value less than current
-    else if (value < root->getValue()) {
-      target = root->getLeft();
+    else if (value < curr->getValue()) {
+      curr = curr->getLeft();
     }
     // Traverse right subtree if value greater than current
     else {
-      target = root->getRight();
+      curr = curr->getRight();
     }
   }
 
@@ -306,6 +308,7 @@ void deleteNode(int value, Node* NIL, Node* root) {
 
   Node* replacement; // Replacement Node
   bool removedOriginalColor = target->getIsRed(); // Store original color
+  bool targetOriginalColor = target->getIsRed();
 
   // CASE 1: Left child is NIL
   if (target->getLeft() == NIL) {
@@ -350,7 +353,7 @@ void deleteNode(int value, Node* NIL, Node* root) {
     successor->getLeft()->setParent(successor);
 
     // Inherit color of removed Node
-    successor->setIsRed(removedOriginalColor);
+    successor->setIsRed(targetOriginalColor);
   }
 
   delete target; // Delete dynamically allocated memory
@@ -422,14 +425,14 @@ void deletionTreeCorrections(Node* n, Node* NIL, Node*& root) {
 
       // MIRROR: CASE 1
       if (s->getIsRed()) {
-	n->setIsRed(false);
+	s->setIsRed(false);
 	n->getParent()->setIsRed(true);
 	rightRotate(n->getParent(), NIL, root);
 	s = n->getSibling();
       }
 
       // MIRROR: CASE 2
-      if (!s->getLeft()->getIsRed() && !s->getLeft()->getIsRed()) {
+      if (!s->getLeft()->getIsRed() && !s->getRight()->getIsRed()) {
 	s->setIsRed(true);
 	n = n->getParent();
       }
@@ -446,7 +449,7 @@ void deletionTreeCorrections(Node* n, Node* NIL, Node*& root) {
 	s->setIsRed(n->getParent()->getIsRed());
 	n->getParent()->setIsRed(false);
 	s->getLeft()->setIsRed(false);
-	leftRotate(n->getParent(), NIL, root);
+	rightRotate(n->getParent(), NIL, root);
 	n = root; 
       }
     }
